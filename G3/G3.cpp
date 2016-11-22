@@ -8,6 +8,10 @@
 #include <string>
 #include <commdlg.h>
 
+#define MARGIN 2
+#define ICON_WIDTH 32
+#define ICON_HEIGHT 32
+
 //Use this later, not now
 /*
 #include <stdio.h> //load list process ID
@@ -126,6 +130,17 @@ void onInitDialog(HWND &hDlg, HWND &hCmbSysKey1, HWND &hCmbSysKey2, HWND &hCmbSy
 	InitCombobox(hCmbSysKey2);
 	InitCombobox(hCmbSysKey3);
 	InitCombobox(hCmbSysKey4);
+
+	HWND hButton;
+	hButton = GetDlgItem(hDlg, IDC_BTN_REMOVE);
+	RECT rect;
+	GetWindowRect(hButton, &rect);
+	MoveWindow(hButton,
+		rect.left - ICON_HEIGHT + 45,  // x coordinate
+		rect.top - ICON_HEIGHT,  // y coordinate
+		ICON_WIDTH,  // Width
+		ICON_HEIGHT,  // Height
+		TRUE);  // Repaint (bool)
 }
 
 BOOL TriggerCombobox(HWND hCmbSysKey1, HWND hCmbSysKey2)
@@ -205,15 +220,20 @@ void onRemoveOneHook(HWND hOldList, HWND hNewList, std::vector<ComboKey> *&listC
 {
 	int curInd;
 
-	//get current hook chose
-	curInd = SendMessage(hOldList, LB_GETCURSEL, 0, 0);
+	if (listCbKey && listCbKey->size() > 0)
+	{
+		//get current hook chose
+		curInd = SendMessage(hOldList, LB_GETCURSEL, 0, 0);
 
-	//delete in list (in dialog)
-	SendMessage(hOldList, LB_DELETESTRING, curInd, 0);
-	SendMessage(hNewList, LB_DELETESTRING, curInd, 0);
+		//delete in list (in dialog)
+		SendMessage(hOldList, LB_DELETESTRING, curInd, 0);
+		SendMessage(hNewList, LB_DELETESTRING, curInd, 0);
 
-	//delete in listHook
-	listCbKey->erase(listCbKey->begin() + curInd);
+		//delete in listHook
+
+		listCbKey->erase(listCbKey->begin() + curInd);
+	}
+	
 }
 void changeUI(HWND hDlg, int type)
 {
@@ -351,6 +371,52 @@ void onOpenDialog(HWND hWnd, TCHAR pstrFileName[], TCHAR pstrTitleName[])
 	GetOpenFileName(&ofn);
 };
 
+int myManageOwnerDrawIconButton(DRAWITEMSTRUCT* pdis, HINSTANCE hInstance) {
+
+	static RECT rect;
+	static int iCount = 0;
+
+	// Icon handles:
+	static HICON hCurrIcon, hUpIconI,  hUpIconA;
+
+	// Use copy of rectangle:
+	rect = pdis->rcItem;
+
+	if (iCount < 1) {
+		// LoadIcon only loads once, but LoadImage does not, 
+		// so in case you call the latter, use a static counter:
+		iCount++;
+		// Inactive buttons:
+		hUpIconI = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON2));
+		// Active buttons:
+		hUpIconA = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+		
+
+		
+	}
+
+	// If the control's id is that of the "Up" button:
+	if (IDC_BTN_REMOVE == pdis->CtlID) {
+		// If the button is selected, display the 
+		// "active" icon, else the "inactive" icon:
+		if (pdis->itemState & ODS_SELECTED) hCurrIcon = hUpIconA;
+		else hCurrIcon = hUpIconI;
+	}
+
+
+	// Center the icon inside the control's rectangle:
+	DrawIconEx(
+		pdis->hDC,
+		(int) 0.5 * (rect.right - rect.left - ICON_WIDTH),
+		(int) 0.5 * (rect.bottom - rect.top - ICON_HEIGHT),
+		(HICON)hCurrIcon,
+		ICON_WIDTH,
+		ICON_HEIGHT,
+		0, NULL, DI_NORMAL
+		);
+
+	return(1);
+}
 
 INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -370,11 +436,26 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static HKeyboard_HL hk(hDlg);
 	static std::vector<ComboKey> *listCbKey;
 	static TCHAR	pstrFileName[MAX_LOADSTRING], pstrTitleName[MAX_LOADSTRING];
+	static DRAWITEMSTRUCT* pdis;
 	HMENU hMenu = 0;
 
 
 	switch (message)
 	{
+	case WM_DRAWITEM:
+		// The DRAWITEMSTRUCT struct contains all there is to know 
+		// about the owner draw control and what there is to do:
+		pdis = (DRAWITEMSTRUCT*)lParam;
+		// (winuser.h) Maybe you also want to account for pdis->CtlType (ODT_MENU, ODT_LISTBOX, ODT_COMBOBOX, ODT_BUTTON, ODT_STATIC)
+		switch (pdis->CtlID) {
+		case IDC_BTN_REMOVE:
+			myManageOwnerDrawIconButton(pdis, hInst);
+			break;
+			// Other case labels if any...
+		default:
+			break;
+		}
+		return(TRUE);
 	case WM_INITDIALOG:
 		onInitDialog(hDlg, hCmbSysKey1, hCmbSysKey2, hCmbSysKey3, hCmbSysKey4, hEdTOldKey, hEdTNewKey, hListOld, hListNew, hEdtDir);
 		getListCbKey(listCbKey);
@@ -384,7 +465,19 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		EnableMenuItem(hMenu, ID_OPTIONS_REPLACEKEYS, MF_DISABLED);
 		loadHook(listCbKey, hListOld, hListNew);
 		hk.Install(listCbKey);
+
 		break;
+	case WM_SIZE:
+	{
+		int cxClient, cyClient;
+		cxClient = LOWORD(lParam);
+		cyClient = HIWORD(lParam);
+		
+		// Resize and redraw the child windows, only if the main 
+		// window is not minimized:
+	
+		break;
+	}
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
@@ -522,11 +615,11 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		}
 
-		return DefWindowProc(hDlg, message, wParam, lParam);
+		
 
 	case WM_PAINT:
 		hdc = BeginPaint(hDlg, &ps);
-		// TODO: Add any drawing code here...
+
 		EndPaint(hDlg, &ps);
 		break;
 	
@@ -539,7 +632,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		hk.Remove();
 		PostQuitMessage(0);
 		break;
-
+	return DefWindowProc(hDlg, message, wParam, lParam);
 	}
 	return 0;
 }

@@ -103,7 +103,11 @@
     <ResourceCompile Include="G3.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Delete_down.ico" />
+    <Image Include="Delete_up.ico" />
     <Image Include="G3.ico" />
+    <Image Include="Remove_down.ico" />
+    <Image Include="Remove_up.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
