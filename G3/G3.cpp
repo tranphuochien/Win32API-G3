@@ -231,7 +231,7 @@ void changeUI(HWND hDlg, int type)
 	{
 		status2 = SW_HIDE;
 		status1 = SW_SHOW;
-		//SetWindowPos(hDlg, HWND_NOTOPMOST, rect.left, rect.top, width, height + 50, SWP_NOMOVE);
+	
 		CheckMenuItem(hMenu, ID_OPTIONS_REPLACEKEYS, MF_CHECKED | MF_BYCOMMAND);
 		EnableMenuItem(hMenu, ID_OPTIONS_REPLACEKEYS, MF_DISABLED);
 		EnableMenuItem(hMenu, ID_OPTIONS_SHORTCUT, MF_ENABLED);
@@ -241,7 +241,7 @@ void changeUI(HWND hDlg, int type)
 	{
 		status1 = SW_HIDE;
 		status2 = SW_SHOW;
-		//SetWindowPos(hDlg, HWND_NOTOPMOST, rect.left, rect.top, width, height - 50, SWP_NOMOVE);
+
 		CheckMenuItem(hMenu, ID_OPTIONS_SHORTCUT, MF_CHECKED | MF_BYCOMMAND);
 		EnableMenuItem(hMenu, ID_OPTIONS_SHORTCUT, MF_DISABLED);
 		EnableMenuItem(hMenu, ID_OPTIONS_REPLACEKEYS, MF_ENABLED);
