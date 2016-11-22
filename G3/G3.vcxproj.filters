@@ -63,5 +63,23 @@
     <Image Include="G3.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Delete_down.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Delete_up.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Remove_down.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Remove_up.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="add_down.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="add_up.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
