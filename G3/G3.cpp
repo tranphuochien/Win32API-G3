@@ -9,8 +9,8 @@
 #include <commdlg.h>
 
 #define MARGIN 2
-#define ICON_WIDTH 32
-#define ICON_HEIGHT 32
+#define ICON_WIDTH 48
+#define ICON_HEIGHT 48
 
 //Use this later, not now
 /*
@@ -132,15 +132,29 @@ void onInitDialog(HWND &hDlg, HWND &hCmbSysKey1, HWND &hCmbSysKey2, HWND &hCmbSy
 	InitCombobox(hCmbSysKey4);
 
 	HWND hButton;
-	hButton = GetDlgItem(hDlg, IDC_BTN_REMOVE);
 	RECT rect;
+
+	hButton = GetDlgItem(hDlg, IDC_BTN_REMOVE);
 	GetWindowRect(hButton, &rect);
+
 	MoveWindow(hButton,
 		rect.left - ICON_HEIGHT + 45,  // x coordinate
 		rect.top - ICON_HEIGHT,  // y coordinate
 		ICON_WIDTH,  // Width
 		ICON_HEIGHT,  // Height
 		TRUE);  // Repaint (bool)
+	
+	hButton = GetDlgItem(hDlg, IDC_REMOVEALL);
+	GetWindowRect(hButton, &rect);
+
+	MoveWindow(hButton,
+		rect.left - ICON_HEIGHT + 50,  // x coordinate
+		rect.top - ICON_HEIGHT+10,  // y coordinate
+		ICON_WIDTH,  // Width
+		ICON_HEIGHT,  // Height
+		TRUE);  // Repaint (bool)
+
+	DeleteObject(hButton);
 }
 
 BOOL TriggerCombobox(HWND hCmbSysKey1, HWND hCmbSysKey2)
@@ -377,7 +391,7 @@ int myManageOwnerDrawIconButton(DRAWITEMSTRUCT* pdis, HINSTANCE hInstance) {
 	static int iCount = 0;
 
 	// Icon handles:
-	static HICON hCurrIcon, hUpIconI,  hUpIconA;
+	static HICON hCurrIcon, hDeleteI,  hDeleteA, hRemoveAllI, hRemoveAllA ;
 
 	// Use copy of rectangle:
 	rect = pdis->rcItem;
@@ -387,22 +401,37 @@ int myManageOwnerDrawIconButton(DRAWITEMSTRUCT* pdis, HINSTANCE hInstance) {
 		// so in case you call the latter, use a static counter:
 		iCount++;
 		// Inactive buttons:
-		hUpIconI = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON2));
+		hDeleteI = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON2));
 		// Active buttons:
-		hUpIconA = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+		hDeleteA = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+
+		hRemoveAllI = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON4));
+	
+
+		hRemoveAllA = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON3));
 		
 
 		
 	}
 
 	// If the control's id is that of the "Up" button:
+	if (IDC_REMOVEALL == pdis->CtlID) {
+		// If the button is selected, display the 
+		// "active" icon, else the "inactive" icon:
+		if (pdis->itemState & ODS_SELECTED) 
+			hCurrIcon = hRemoveAllA;
+		else hCurrIcon = hRemoveAllI;
+	}
+	
+	// If the control's id is that of the "Up" button:
 	if (IDC_BTN_REMOVE == pdis->CtlID) {
 		// If the button is selected, display the 
 		// "active" icon, else the "inactive" icon:
-		if (pdis->itemState & ODS_SELECTED) hCurrIcon = hUpIconA;
-		else hCurrIcon = hUpIconI;
+		if (pdis->itemState & ODS_SELECTED) hCurrIcon = hDeleteA;
+		else hCurrIcon = hDeleteI;
 	}
 
+	
 
 	// Center the icon inside the control's rectangle:
 	DrawIconEx(
@@ -436,7 +465,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static HKeyboard_HL hk(hDlg);
 	static std::vector<ComboKey> *listCbKey;
 	static TCHAR	pstrFileName[MAX_LOADSTRING], pstrTitleName[MAX_LOADSTRING];
-	static DRAWITEMSTRUCT* pdis;
+	static DRAWITEMSTRUCT * pdis;
 	HMENU hMenu = 0;
 
 
@@ -448,6 +477,9 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		pdis = (DRAWITEMSTRUCT*)lParam;
 		// (winuser.h) Maybe you also want to account for pdis->CtlType (ODT_MENU, ODT_LISTBOX, ODT_COMBOBOX, ODT_BUTTON, ODT_STATIC)
 		switch (pdis->CtlID) {
+		case IDC_REMOVEALL:
+			myManageOwnerDrawIconButton(pdis, hInst);
+			break;
 		case IDC_BTN_REMOVE:
 			myManageOwnerDrawIconButton(pdis, hInst);
 			break;
