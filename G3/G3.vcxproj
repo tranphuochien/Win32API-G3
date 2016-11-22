@@ -103,6 +103,8 @@
     <ResourceCompile Include="G3.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="add_down.ico" />
+    <Image Include="add_up.ico" />
     <Image Include="Delete_down.ico" />
     <Image Include="Delete_up.ico" />
     <Image Include="G3.ico" />

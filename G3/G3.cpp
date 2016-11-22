@@ -9,8 +9,10 @@
 #include <commdlg.h>
 
 #define MARGIN 2
-#define ICON_WIDTH 48
-#define ICON_HEIGHT 48
+#define ICON_WIDTH 32
+#define ICON_HEIGHT 32
+#define ICON_LARGE_WIDTH 48
+#define ICON_LARGE_HEIGHT 48
 
 //Use this later, not now
 /*
@@ -139,7 +141,7 @@ void onInitDialog(HWND &hDlg, HWND &hCmbSysKey1, HWND &hCmbSysKey2, HWND &hCmbSy
 
 	MoveWindow(hButton,
 		rect.left - ICON_HEIGHT + 45,  // x coordinate
-		rect.top - ICON_HEIGHT,  // y coordinate
+		rect.top - ICON_HEIGHT - 10,  // y coordinate
 		ICON_WIDTH,  // Width
 		ICON_HEIGHT,  // Height
 		TRUE);  // Repaint (bool)
@@ -149,11 +151,22 @@ void onInitDialog(HWND &hDlg, HWND &hCmbSysKey1, HWND &hCmbSysKey2, HWND &hCmbSy
 
 	MoveWindow(hButton,
 		rect.left - ICON_HEIGHT + 50,  // x coordinate
-		rect.top - ICON_HEIGHT+10,  // y coordinate
+		rect.top - ICON_HEIGHT,  // y coordinate
 		ICON_WIDTH,  // Width
 		ICON_HEIGHT,  // Height
 		TRUE);  // Repaint (bool)
 
+	/*
+	hButton = GetDlgItem(hDlg, IDC_BTN_INSTALL);
+	GetWindowRect(hButton, &rect);
+
+	MoveWindow(hButton,
+		rect.left - ICON_LARGE_WIDTH + 50,  // x coordinate
+		rect.top - ICON_LARGE_WIDTH,  // y coordinate
+		ICON_LARGE_WIDTH,  // Width
+		ICON_LARGE_HEIGHT,  // Height
+		TRUE);  // Repaint (bool)
+	*/
 	DeleteObject(hButton);
 }
 
@@ -391,7 +404,7 @@ int myManageOwnerDrawIconButton(DRAWITEMSTRUCT* pdis, HINSTANCE hInstance) {
 	static int iCount = 0;
 
 	// Icon handles:
-	static HICON hCurrIcon, hDeleteI,  hDeleteA, hRemoveAllI, hRemoveAllA ;
+	static HICON hCurrIcon, hDeleteI,  hDeleteA, hRemoveAllI, hRemoveAllA , hAddI, hAddA;
 
 	// Use copy of rectangle:
 	rect = pdis->rcItem;
@@ -407,10 +420,10 @@ int myManageOwnerDrawIconButton(DRAWITEMSTRUCT* pdis, HINSTANCE hInstance) {
 
 		hRemoveAllI = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON4));
 	
-
 		hRemoveAllA = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON3));
 		
-
+		hAddI = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON6));
+		hAddA = (HICON)LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON5));
 		
 	}
 
@@ -430,6 +443,26 @@ int myManageOwnerDrawIconButton(DRAWITEMSTRUCT* pdis, HINSTANCE hInstance) {
 		if (pdis->itemState & ODS_SELECTED) hCurrIcon = hDeleteA;
 		else hCurrIcon = hDeleteI;
 	}
+
+	// If the control's id is that of the "Up" button:
+	if (IDC_BTN_INSTALL == pdis->CtlID) {
+		// If the button is selected, display the 
+		// "active" icon, else the "inactive" icon:
+		if (pdis->itemState & ODS_SELECTED) hCurrIcon = hAddA;
+		else hCurrIcon = hAddI;
+
+		DrawIconEx(
+			pdis->hDC,
+			(int) 0.5 * (rect.right - rect.left - ICON_WIDTH),
+			(int) 0.5 * (rect.bottom - rect.top - ICON_HEIGHT),
+			(HICON)hCurrIcon,
+			ICON_WIDTH,
+			ICON_HEIGHT,
+			0, NULL, DI_NORMAL
+			);
+		return 1;
+	}
+	
 
 	
 
@@ -478,8 +511,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		// (winuser.h) Maybe you also want to account for pdis->CtlType (ODT_MENU, ODT_LISTBOX, ODT_COMBOBOX, ODT_BUTTON, ODT_STATIC)
 		switch (pdis->CtlID) {
 		case IDC_REMOVEALL:
-			myManageOwnerDrawIconButton(pdis, hInst);
-			break;
+		case IDC_BTN_INSTALL:
 		case IDC_BTN_REMOVE:
 			myManageOwnerDrawIconButton(pdis, hInst);
 			break;
