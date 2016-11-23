@@ -23,6 +23,7 @@ int convertVirtualNormalKey(TCHAR t)
 		return -1;
 	return VkKeyScan(t);
 }
+
 void ComboKey::Update(HWND hCmbSysKey1, HWND hCmbSysKey2, HWND hCmbSysKey3, HWND hCmbSysKey4, HWND hEdTOldKey, HWND hEdTNewKey, HWND hEdtDir)
 {
 	GetWindowText(hCmbSysKey1, sOldSystemKey1, MAX_LEN_SYSKEY);

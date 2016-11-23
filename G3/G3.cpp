@@ -187,6 +187,7 @@ BOOL TriggerCombobox(HWND hCmbSysKey1, HWND hCmbSysKey2)
 	return TRUE;
 }
 
+// check if user input more than 2 character
 BOOL TriggerEditText(HWND hEditText)
 {
 	TCHAR buffer[MAX_LOADSTRING];
@@ -224,6 +225,7 @@ void mergeStringComboKey(int sysKey1, int sysKey2, int key, TCHAR *sSysKey1, TCH
 	}
 	SendMessage(hList, LB_ADDSTRING, NULL, (LPARAM)buffer);
 }
+
 void UpdateListbox(HWND hListOld, HWND hListNew, ComboKey cbKey)
 {
 	mergeStringComboKey(cbKey.oldSystemKey1, cbKey.oldSystemKey2, cbKey.oldKey, cbKey.sOldSystemKey1, cbKey.sOldSystemKey2, cbKey.sOldKey, hListOld);
@@ -232,6 +234,7 @@ void UpdateListbox(HWND hListOld, HWND hListNew, ComboKey cbKey)
 	else
 		SendMessage(hListNew, LB_ADDSTRING, NULL, (LPARAM)cbKey.dirName);
 }
+
 void ResetInput(HWND &hCmbSysKey1, HWND &hCmbSysKey2, HWND &hCmbSysKey3, HWND &hCmbSysKey4, HWND &hEdTOldKey, HWND &hEdTNewKey, HWND &hEdTDir)
 {
 	SetWindowText(hEdTOldKey, TEXT(""));
@@ -243,6 +246,7 @@ void ResetInput(HWND &hCmbSysKey1, HWND &hCmbSysKey2, HWND &hCmbSysKey3, HWND &h
 	SendMessage(hCmbSysKey3, CB_SETCURSEL, 0, 0);
 	SendMessage(hCmbSysKey4, CB_SETCURSEL, 0, 0);
 }
+
 void onRemoveOneHook(HWND hOldList, HWND hNewList, std::vector<ComboKey> *&listCbKey)
 {
 	int curInd;
@@ -262,6 +266,7 @@ void onRemoveOneHook(HWND hOldList, HWND hNewList, std::vector<ComboKey> *&listC
 	}
 	
 }
+
 void changeUI(HWND hDlg, int type)
 {
 	HWND hTmp;
@@ -326,6 +331,7 @@ void changeUI(HWND hDlg, int type)
 	DeleteObject(hMenu);
 	DeleteObject(hTmp);
 }
+
 void saveHook(std::vector<ComboKey> *listCbKey)
 {
 	HANDLE hFile = 0;
@@ -349,6 +355,7 @@ void saveHook(std::vector<ComboKey> *listCbKey)
 	}
 	CloseHandle(hFile);
 }
+
 void loadHook(std::vector<ComboKey> *&listCbKey, HWND hListOld, HWND hListNew)
 {
 	HANDLE hFile;
@@ -368,6 +375,7 @@ void loadHook(std::vector<ComboKey> *&listCbKey, HWND hListOld, HWND hListNew)
 	}
 	CloseHandle(hFile);
 }
+
 void onOpenDialog(HWND hWnd, TCHAR pstrFileName[], TCHAR pstrTitleName[])
 {
 	OPENFILENAME	ofn;
